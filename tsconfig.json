@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        // "module": "commonjs",
-        "target": "ES2015",
+        "module": "None",
+        "target": "ES2022",
         "outDir": "out",
         "rootDir": "src",
         "outFile": "out/tsutils.js",

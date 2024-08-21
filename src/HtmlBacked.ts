@@ -1,4 +1,4 @@
-abstract class HtmlBacked/* <K extends keyof HTMLElementTagNameMap> */
+abstract class HtmlBacked
 {
     private readonly tagName: keyof HTMLElementTagNameMap;
     private element: HTMLElement;

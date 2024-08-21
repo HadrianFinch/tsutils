@@ -9,21 +9,7 @@ class FObject<K extends HTMLElement>
 
     public newChild<K extends keyof HTMLElementTagNameMap>(tagName: K, classname:string|null|string[] = null): HTMLElementTagNameMap[K]
     {
-        const elm = document.createElement(tagName);
-        FObject.addFToElm(elm);
-
-        if (classname != null)
-        {
-            if (typeof classname === "string")
-            {
-                classname.split(" ").forEach((e) => {elm.classList.add(e)});
-            }
-            else if (classname instanceof Array)
-            {
-                classname.forEach((e) => {elm.classList.add(e)});
-            }
-        }
-
+        const elm = FObject.createNew(tagName, classname);
         this.element.appendChild(elm);
 
         return elm;
@@ -37,6 +23,14 @@ class FObject<K extends HTMLElement>
     public chain(): FChainBuilder<K>
     {
         return new FChainBuilder(this.element);
+    }
+
+    public removeAllChildren(): void
+    {
+        while (this.element.firstChild)
+        {
+            this.element.firstChild.remove();
+        }
     }
 
     private static addFToElm(element:HTMLElement)
@@ -75,6 +69,26 @@ class FObject<K extends HTMLElement>
 
         return arr;
     }
+
+    public static createNew<K extends keyof HTMLElementTagNameMap>(tagName: K, classname:string|null|string[] = null): HTMLElementTagNameMap[K]
+    {
+        const elm = document.createElement(tagName);
+        FObject.addFToElm(elm);
+
+        if (classname != null)
+        {
+            if (typeof classname === "string")
+            {
+                classname.split(" ").forEach((e) => {elm.classList.add(e)});
+            }
+            else if (classname instanceof Array)
+            {
+                classname.forEach((e) => {elm.classList.add(e)});
+            }
+        }
+
+        return elm;
+    }
 }
 
 class FChainBuilder<T extends HTMLElement>
@@ -109,6 +123,11 @@ class FChainBuilder<T extends HTMLElement>
         return this.element.f.newChild(tagName, classname).f.chain();
     }
 
+    public newSibling<K extends keyof HTMLElementTagNameMap>(tagName: K, classname:string|null|string[] = null): FChainBuilder<HTMLElementTagNameMap[K]>
+    {
+        return this.back().newChild(tagName, classname);
+    }
+
     public back(): FChainBuilder<T>
     {
         return this.element.parentElement.f.chain();
@@ -129,8 +148,12 @@ class f {
     constructor(sel:string) {
         return FObject.find(sel);
     }
-    static all(sel:string) {
+    public static all(sel:string) {
         return FObject.findAll(sel);
+    }
+    public static new<K extends keyof HTMLElementTagNameMap>(tagName: K, classname:string|null|string[] = null): HTMLElementTagNameMap[K]
+    {
+        return FObject.createNew(tagName, classname);
     }
 }
 

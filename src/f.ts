@@ -1,8 +1,8 @@
-class FObject
+class FObject<K extends HTMLElement>
 {
-    private element: HTMLElement;
+    private element: K;
     
-    constructor(element:HTMLElement)
+    constructor(element:K)
     {
         this.element = element;
     }
@@ -34,7 +34,7 @@ class FObject
         this.element.addEventListener(type, listener);
     }
 
-    public chain(): FChainBuilder
+    public chain(): FChainBuilder<K>
     {
         return new FChainBuilder(this.element);
     }
@@ -48,48 +48,95 @@ class FObject
     {
         FObject.addFToElm(document.body);
     }
+
+    public static find(sel:string): HTMLElement
+    {
+        const elm = document.querySelector(sel) as HTMLElement;
+        if (elm != null)
+        {
+            FObject.addFToElm(elm);
+        }
+        return elm;
+    }
+
+    public static findAll(sel:string): Array<HTMLElement>
+    {
+        const elms = document.querySelectorAll(sel);
+        const arr = new Array<HTMLElement>();
+
+        elms.forEach(e => {
+            const elm = e as HTMLElement;
+            if (elm != null)
+            {
+                FObject.addFToElm(elm);
+                arr.push(elm);
+            }
+        });
+
+        return arr;
+    }
 }
 
-class FChainBuilder
+class FChainBuilder<T extends HTMLElement>
 {
-    private element:HTMLElement;
+    private element:T;
 
-    constructor(element:HTMLElement)
+    constructor(element:T)
     {
         this.element = element;
     }
 
-    public set(content:string): FChainBuilder
+    public set(content:string): FChainBuilder<T>
     {
         this.element.innerHTML = content;
         return this;
     }
 
-    public class(classname:string): FChainBuilder
+    public class(classname:string): FChainBuilder<T>
     {
         this.element.classList.add(classname);
         return this;
     }
 
-    public onClick(listener: (this: HTMLElement, ev: HTMLElementEventMap["click"]) => any)
+    public onClick(listener: (this: HTMLElement, ev: HTMLElementEventMap["click"]) => any): FChainBuilder<T>
     {
         this.element.f.on("click", listener);
+        return this;
     }
 
-    public newChild<K extends keyof HTMLElementTagNameMap>(tagName: K, classname:string|null|string[] = null): FChainBuilder
+    public newChild<K extends keyof HTMLElementTagNameMap>(tagName: K, classname:string|null|string[] = null): FChainBuilder<HTMLElementTagNameMap[K]>
     {
         return this.element.f.newChild(tagName, classname).f.chain();
     }
+
+    public back(): FChainBuilder<T>
+    {
+        return this.element.parentElement.f.chain();
+    }
+
+    public end(): T
+    {
+        return this.element;
+    }
+
 }
 
 interface HTMLElement
 {
-    f: FObject;
+    f: FObject<typeof this>;
 }
+
+const f = function(sel:string): HTMLElement
+{
+    return FObject.find(sel);
+};
+f.all = (sel:string) => {
+    return FObject.findAll(sel);
+};
 
 (() => {
     FObject.initialize();
     // (HTMLElement.prototype as any).f = () => {};
-
-    document.body.f.newChild("p", "test").f.newChild("img");
+    document.body.f.chain().newChild("p").set("Hello").back().newChild("h1").set("This is a headder").onClick(() => {alert("Headder clicked")}).back().newChild("a").set("this is a link").end()
+    // document.body.f.newChild("p", "test").f.newChild("img");
 })();

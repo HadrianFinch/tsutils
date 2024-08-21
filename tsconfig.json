@@ -4,6 +4,7 @@
         "target": "ES5",
         "outDir": "out",
         "rootDir": "src",
-        "outFile": "out/tsutils.js"
+        "outFile": "out/tsutils.js",
+        "sourceMap": true
     }
 }

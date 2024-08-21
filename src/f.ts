@@ -118,7 +118,6 @@ class FChainBuilder<T extends HTMLElement>
     {
         return this.element;
     }
-
 }
 
 interface HTMLElement
@@ -126,17 +125,15 @@ interface HTMLElement
     f: FObject<typeof this>;
 }
 
-const f = function(sel:string): HTMLElement
-{
-    return FObject.find(sel);
-};
-f.all = (sel:string) => {
-    return FObject.findAll(sel);
-};
+class f {
+    constructor(sel:string) {
+        return FObject.find(sel);
+    }
+    static all(sel:string) {
+        return FObject.findAll(sel);
+    }
+}
 
 (() => {
     FObject.initialize();
-    // (HTMLElement.prototype as any).f = () => {};
-    document.body.f.chain().newChild("p").set("Hello").back().newChild("h1").set("This is a headder").onClick(() => {alert("Headder clicked")}).back().newChild("a").set("this is a link").end()
-    // document.body.f.newChild("p", "test").f.newChild("img");
 })();
